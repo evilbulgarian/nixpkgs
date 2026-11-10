@@ -1129,6 +1129,7 @@ in
   merecat = runTest ./merecat.nix;
   meshtasticd = runTest ./networking/meshtasticd.nix;
   metabase = runTest ./metabase.nix;
+  mev-boost = runTest ./mev-boost.nix;
   mihomo = runTest ./mihomo.nix;
   mimir = runTest ./mimir.nix;
   mindustry = runTest ./mindustry.nix;
