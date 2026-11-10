@@ -200,6 +200,7 @@ in
           "chiado"
           "sepolia"
           "holesky"
+          "hoodi"
         ];
         default = "mainnet";
         description = ''
