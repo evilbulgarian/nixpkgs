@@ -103,8 +103,18 @@ let
           jwtsecret = lib.mkOption {
             type = lib.types.str;
             default = "";
-            description = "Path to a JWT secret for authenticated RPC endpoint.";
-            example = "/var/run/geth/jwtsecret";
+            description = ''
+              Path to a JWT secret for authenticated RPC endpoint.
+
+              The file is passed to the service as a systemd credential, so it is
+              read by systemd as root before privileges are dropped. It may be
+              owned by root with mode 0400, as secret-management tools such as
+              sops-nix and agenix produce by default.
+
+              When left empty, geth generates a secret at
+              {file}`<datadir>/geth/jwtsecret` on first start.
+            '';
+            example = "/run/secrets/geth-jwtsecret";
           };
         };
 
@@ -238,10 +248,12 @@ in
                   "authrpc.port" = cfg.authrpc.port;
                   "authrpc.vhosts" = lib.concatStringsSep "," cfg.authrpc.vhosts;
                   "authrpc.jwtsecret" =
-                    if cfg.authrpc.jwtsecret != "" then cfg.authrpc.jwtsecret else "${dataDir}/geth/jwtsecret";
+                    if cfg.authrpc.jwtsecret != "" then "%d/jwtsecret" else "${dataDir}/geth/jwtsecret";
                 };
               in
               "${lib.getExe cfg.package} ${args} ${lib.escapeShellArgs cfg.extraArgs}";
+
+            LoadCredential = lib.optional (cfg.authrpc.jwtsecret != "") "jwtsecret:${cfg.authrpc.jwtsecret}";
 
             DynamicUser = true;
             Restart = "always";
